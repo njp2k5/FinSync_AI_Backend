@@ -1,11 +1,11 @@
+# app/models/domain_models.py
 from sqlmodel import SQLModel, Field
 from typing import Optional, Any, Dict
 from datetime import datetime
 from enum import Enum
 import uuid
 from sqlalchemy import Column
-from sqlalchemy import JSON   # Cross-database JSON type (works for SQLite & Postgres)
-from sqlalchemy.types import JSON as JSONType  # Type hint for JSON column
+from sqlalchemy import JSON  # cross-db JSON
 
 class SessionStatus(str, Enum):
     PENDING = "pending"
@@ -13,6 +13,7 @@ class SessionStatus(str, Enum):
     OFFER_GENERATED = "offer_generated"
     REJECTED = "rejected"
     COMPLETED = "completed"
+    AWAITING_SALARY = "awaiting_salary"
 
 class OfferStatus(str, Enum):
     APPROVED = "Approved"
@@ -24,12 +25,12 @@ class SimulationSession(SQLModel, table=True):
     status: SessionStatus = Field(default=SessionStatus.PENDING)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-
-    latest_offer_id: Optional[uuid.UUID] = Field(default=None, foreign_key="offer.id")
+    customer_id: Optional[str] = Field(default=None, index=True)  # ties to synthetic customers
 
 class UserProfile(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     session_id: uuid.UUID = Field(foreign_key="simulationsession.id", index=True)
+    customer_id: Optional[str] = None
     name: str
     age: int
     income_monthly: float
@@ -39,6 +40,7 @@ class UserProfile(SQLModel, table=True):
     desired_amount: float
     desired_tenure_months: int
     mood: Optional[str] = None
+    salary_reported: Optional[float] = None  # set after upload / parsing
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class Message(SQLModel, table=True):
@@ -51,12 +53,16 @@ class Message(SQLModel, table=True):
 class Offer(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     session_id: uuid.UUID = Field(foreign_key="simulationsession.id", index=True)
+    requested_amount: float
     amount: float
     tenure_months: int
     interest_rate: float
     monthly_emi: float
     status: OfferStatus
     reason_summary: str
+    pre_approved_limit: Optional[float] = None
+    decision_reason: Optional[str] = None
+    salary_slip_path: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class AgentLog(SQLModel, table=True):
@@ -64,10 +70,7 @@ class AgentLog(SQLModel, table=True):
     session_id: uuid.UUID = Field(foreign_key="simulationsession.id", index=True)
     offer_id: Optional[uuid.UUID] = Field(default=None, foreign_key="offer.id")
 
-    # JSON column with explicit SQLAlchemy type
-    log: Dict[str, Any] = Field(
-        sa_column=Column(JSON),
-        default_factory=dict
-    )
+    # explicit JSON column so SQLModel knows how to store it
+    log: Dict[str, Any] = Field(sa_column=Column(JSON), default_factory=dict)
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
