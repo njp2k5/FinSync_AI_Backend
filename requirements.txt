@@ -1,0 +1,47 @@
+# =========================
+# FastAPI Core
+# =========================
+fastapi
+uvicorn[standard]
+
+# =========================
+# Database & ORM
+# =========================
+sqlmodel
+sqlalchemy
+psycopg2-binary
+
+# =========================
+# Validation & Config
+# =========================
+pydantic
+pydantic-settings
+python-dotenv
+
+# =========================
+# Agent Orchestration (Future)
+# =========================
+langgraph
+langchain
+langchain-openai
+
+# =========================
+# HTTP & Utilities
+# =========================
+httpx
+python-multipart
+
+# =========================
+# Migrations
+# =========================
+alembic
+
+# =========================
+# PDF Generation (Sanction Letter)
+# =========================
+reportlab
+
+# =========================
+# Logging & Monitoring
+# =========================
+loguru
