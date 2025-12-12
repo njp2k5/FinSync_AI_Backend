@@ -17,6 +17,13 @@ psycopg2-binary
 pydantic
 pydantic-settings
 python-dotenv
+email-validator
+
+# =========================
+# Authentication & Security
+# =========================
+python-jose[cryptography]
+passlib[bcrypt]
 
 # =========================
 # Agent Orchestration (Future)
@@ -39,9 +46,12 @@ alembic
 # =========================
 # PDF Generation (Sanction Letter)
 # =========================
+pypdf
 reportlab
 
 # =========================
 # Logging & Monitoring
 # =========================
 loguru
+
+google-generativeai

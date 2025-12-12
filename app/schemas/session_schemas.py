@@ -1,6 +1,7 @@
 # app/schemas/session_schemas.py
+# app/schemas/session_schemas.py
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Optional, List, Dict, Any
 from uuid import UUID
 from datetime import datetime
 from app.models.domain_models import OfferStatus, SessionStatus
@@ -16,6 +17,7 @@ class UserProfileCreate(BaseModel):
     desired_amount: float
     desired_tenure_months: int
     mood: Optional[str] = None
+    email: Optional[str] = None
 
 class OfferOut(BaseModel):
     requested_amount: float
@@ -42,14 +44,15 @@ class ChatReply(BaseModel):
     text: str
     is_final_offer: bool = False
     final_offer: Optional[OfferOut] = None
-    next_action: Optional[str] = None  # e.g., "require_salary_upload"
+    next_action: Optional[str] = None
 
 class InternalLogOut(BaseModel):
     emotion_agent: Dict[str, Any]
     sales_agent: Dict[str, Any]
     verification_agent: Dict[str, Any]
     underwriting_agent: Dict[str, Any]
-    compliance_agent: Optional[Dict[str, Any]] = None
+    agent_lines: Optional[List[str]] = None
+    model_response: Optional[Dict[str, Any]] = None
 
 class ChatResponse(BaseModel):
     session_id: UUID

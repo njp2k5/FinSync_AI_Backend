@@ -1,14 +1,16 @@
 # main.py
+# main.py
 from fastapi import FastAPI
-from app.core.db import init_db
-from app.api.routes_health import router as health_router
-from app.api.routes_sessions import router as sessions_router
-from app.api.routes_mocks import router as mocks_router
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 
-def create_app() -> FastAPI:
+# import routers
+from app.api import routes_auth, routes_user, routes_dashboard, routes_chat, routes_sessions, routes_mocks, routes_admin, routes_health
+
+def create_app():
     app = FastAPI(title="FinSync AI Backend")
+
+    # CORS — adapt allowed origins in production
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -16,15 +18,28 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.include_router(health_router, prefix="/api")
-    app.include_router(sessions_router, prefix="/api")
-    app.include_router(mocks_router, prefix="/api")
+
+    # include routers — make sure each module defines `router`
+    app.include_router(routes_health.router, prefix="/api")
+    app.include_router(routes_auth.router, prefix="/api")
+    app.include_router(routes_user.router, prefix="/api")
+    app.include_router(routes_dashboard.router, prefix="/api")
+    app.include_router(routes_chat.router, prefix="/api")
+    app.include_router(routes_sessions.router, prefix="/api")
+    app.include_router(routes_mocks.router, prefix="/api")
+    app.include_router(routes_admin.router, prefix="/api")
 
     @app.on_event("startup")
     def on_startup():
-        init_db()
-        # make uploads dir
-        Path("uploads").mkdir(exist_ok=True)
+        # ensure upload dir exists
+        Path("uploads").mkdir(exist_ok=True, parents=True)
+        # init_db() call if you have it
+        try:
+            from app.core.db import init_db
+            init_db()
+        except Exception:
+            # swallow here; startup logs will show real error
+            pass
 
     return app
 

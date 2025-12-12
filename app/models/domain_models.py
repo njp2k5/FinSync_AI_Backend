@@ -7,6 +7,21 @@ import uuid
 from sqlalchemy import Column
 from sqlalchemy import JSON  # cross-db JSON
 
+# --- NEW: persistent User account model (added without modifying any existing models) ---
+class User(SQLModel, table=True):
+    """
+    Persistent user account for signup/login. Added so auth routes can reference a User.
+    This does not replace UserProfile (which remains tied to SimulationSession).
+    """
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    name: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    password_hash: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+# --- Existing enums and models left unchanged ---
+
 class SessionStatus(str, Enum):
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
