@@ -25,7 +25,7 @@ def signup(payload: SignupIn, db: Session = Depends(get_session)):
     db.commit()
     db.refresh(u)
 
-    token = create_access_token({"sub": u.id})
+    token = create_access_token({"sub": str(u.id)})
     return TokenOut(access_token=token)
 
 @router.post("/auth/login", response_model=TokenOut)
@@ -34,7 +34,7 @@ def login(payload: LoginIn, db: Session = Depends(get_session)):
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_access_token({"sub": user.id})
+    token = create_access_token({"sub": str(user.id)})
     return TokenOut(access_token=token)
 
 @router.get("/auth/me", response_model=UserOut)
