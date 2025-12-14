@@ -14,6 +14,7 @@ class User(SQLModel, table=True):
     This does not replace UserProfile (which remains tied to SimulationSession).
     """
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    customer_id: str = Field(index=True, unique=True)
     name: str
     email: Optional[str] = None
     phone: Optional[str] = None

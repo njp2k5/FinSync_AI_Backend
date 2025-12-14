@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -12,10 +11,17 @@ from app.core.db import get_session
 
 ALGO = "HS256"
 
+# This enables the Swagger "Authorize" button
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
 def create_access_token(data: dict):
+    """
+    data MUST contain:
+    {
+        "sub": customer_id (str)
+    }
+    """
     if not settings.SECRET_KEY:
         raise RuntimeError("SECRET_KEY is not set")
 
@@ -41,14 +47,13 @@ def get_current_user(
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGO])
 
-        sub = payload.get("sub")
-        if not sub:
+        # ✅ SINGLE IDENTITY: customer_id
+        customer_id = payload.get("sub")
+        if not customer_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token payload",
             )
-
-        user_id = UUID(sub)
 
     except ExpiredSignatureError:
         raise HTTPException(
@@ -56,13 +61,16 @@ def get_current_user(
             detail="Token has expired",
         )
 
-    except (JWTError, ValueError):
+    except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication token",
         )
 
-    user = db.exec(select(User).where(User.id == user_id)).first()
+    user = db.exec(
+        select(User).where(User.customer_id == customer_id)
+    ).first()
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

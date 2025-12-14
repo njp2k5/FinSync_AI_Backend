@@ -1,28 +1,59 @@
 [
-    {
-      "customer_id": "c1",
-      "name": "Anita Sharma",
-      "age": 32,
-      "city": "Mumbai",
-      "phone": "9999000001",
-      "income_monthly": 80000,
-      "existing_emi": 5000,
-      "pre_approved_limit": 150000,
-      "credit_score": 760,
-      "address": "Mumbai, MH"
-    },
-    {
-      "customer_id": "c2",
-      "name": "Rohit Verma",
-      "age": 29,
-      "city": "Bengaluru",
-      "phone": "9999000002",
-      "income_monthly": 40000,
-      "existing_emi": 8000,
-      "pre_approved_limit": 60000,
-      "credit_score": 680,
-      "address": "Bengaluru, KA"
-    }
-   
-  ]
-  
+  {
+    "customer_id": "c1",
+    "name": "Anita Sharma",
+    "age": 32,
+    "city": "Mumbai",
+    "phone": "9999000001",
+    "income_monthly": 80000,
+    "existing_emi": 5000,
+    "pre_approved_limit": 150000,
+    "credit_score": 760,
+    "address": "Mumbai, MH"
+  },
+  {
+    "customer_id": "c2",
+    "name": "Rohit Verma",
+    "age": 29,
+    "city": "Bengaluru",
+    "phone": "9999000002",
+    "income_monthly": 40000,
+    "existing_emi": 8000,
+    "pre_approved_limit": 60000,
+    "credit_score": 680,
+    "address": "Bengaluru, KA"
+  },
+  {
+    "customer_id": "CUST_E38E3D",
+    "name": "mike",
+    "email": "mikesmith@gmail.com",
+    "phone": "9999999999",
+    "credit_score": 750,
+    "pre_approved_limit": 500000,
+    "income_monthly": 50000,
+    "existing_emi": 0,
+    "city": "Bangalore"
+  },
+  {
+    "customer_id": "CUST_C30A29",
+    "name": "mike",
+    "email": "mikesmith@gmail.com",
+    "phone": "9999999999",
+    "credit_score": 750,
+    "pre_approved_limit": 500000,
+    "income_monthly": 50000,
+    "existing_emi": 0,
+    "city": "Bangalore"
+  },
+  {
+    "customer_id": "CUST_62EBFC",
+    "name": "mike",
+    "email": "mikesmith@gmail.com",
+    "phone": "9999999999",
+    "credit_score": 750,
+    "pre_approved_limit": 500000,
+    "income_monthly": 50000,
+    "existing_emi": 0,
+    "city": "Bangalore"
+  }
+]

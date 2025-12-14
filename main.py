@@ -1,16 +1,28 @@
 # main.py
-# main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
+import logging
 
-# import routers
-from app.api import routes_auth, routes_user, routes_dashboard, routes_chat, routes_sessions, routes_mocks, routes_admin, routes_health
+from app.api import (
+    routes_auth,
+    routes_user,
+    routes_dashboard,
+    routes_chat,
+    routes_sessions,
+    routes_mocks,
+    routes_admin,
+    routes_health,
+)
+from app.core.db import init_db
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 def create_app():
     app = FastAPI(title="FinSync AI Backend")
 
-    # CORS — adapt allowed origins in production
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -19,7 +31,6 @@ def create_app():
         allow_headers=["*"],
     )
 
-    # include routers — make sure each module defines `router`
     app.include_router(routes_health.router, prefix="/api")
     app.include_router(routes_auth.router, prefix="/api")
     app.include_router(routes_user.router, prefix="/api")
@@ -31,17 +42,11 @@ def create_app():
 
     @app.on_event("startup")
     def on_startup():
-        # ensure upload dir exists
         Path("uploads").mkdir(exist_ok=True, parents=True)
-        # init_db() call if you have it
-        try:
-            from app.core.db import init_db
-            init_db()
-        except Exception:
-            # swallow here; startup logs will show real error
-            pass
+        init_db()
+        print ("Application startup complete")
 
     return app
 
-app = create_app()
 
+app = create_app()

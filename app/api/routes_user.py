@@ -1,67 +1,120 @@
-# app/api/routes_user.py
-# app/api/routes_user.py
-import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
+
 from app.core.db import get_session
-from app.models.domain_models import User, UserProfile, Offer
+from app.models.domain_models import (
+    User,
+    UserProfile,
+    Offer,
+    SimulationSession,
+)
 from app.schemas.user_schemas import SaveProfileIn
 from app.services.jwt_service import get_current_user
-from app.api.routes_mocks import get_crm, get_credit, get_offer as mock_offer
+from app.services.mock_data_service import get_customer
 
 router = APIRouter(prefix="/user", tags=["user"])
 
-@router.post("/{user_id}/fetch-kyc")
-def fetch_kyc(user_id: str, db: Session = Depends(get_session)):
-    """
-    Fetch CRM KYC mock and store as a UserProfile tied to a new SimulationSession or existing session.
-    Note: original code used a separate KYC table — here we write into UserProfile for compatibility.
-    """
-    crm_data = get_crm(user_id)
-    if not crm_data:
+
+# -------------------------
+# Fetch & save KYC
+# -------------------------
+@router.post("/fetch-kyc")
+def fetch_kyc(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_session),
+):
+    customer_id = current_user.customer_id
+
+    customer = get_customer(customer_id)
+    if not customer:
         raise HTTPException(status_code=404, detail="CRM data not found")
 
-    # Create a UserProfile (you might want to tie it to a session later)
+    session = SimulationSession(customer_id=customer_id)
+    db.add(session)
+    db.commit()
+    db.refresh(session)
+
     profile = UserProfile(
-        session_id=crm_data.get("session_id") or uuid.uuid4(),  # if crm doesn't provide session, create a placeholder
-        customer_id=crm_data.get("customer_id"),
-        name=crm_data.get("name", ""),
-        age=crm_data.get("age", 0),
-        income_monthly=crm_data.get("income_monthly", 0.0),
-        existing_emi=crm_data.get("existing_emi", 0.0),
-        employment_type=crm_data.get("employment_type", ""),
-        loan_type=crm_data.get("loan_type", "Personal"),
-        desired_amount=crm_data.get("desired_amount", 0.0),
-        desired_tenure_months=crm_data.get("desired_tenure_months", 12)
+        session_id=session.id,
+        customer_id=customer_id,
+        name=customer.get("name", ""),
+        age=customer.get("age", 0),
+        income_monthly=customer.get("income_monthly", 0.0),
+        existing_emi=customer.get("existing_emi", 0.0),
+        employment_type=customer.get("employment_type", ""),
+        loan_type="Personal",
+        desired_amount=0.0,
+        desired_tenure_months=12,
     )
+
     db.add(profile)
     db.commit()
     db.refresh(profile)
-    return {"saved": True, "profile": profile}
 
-@router.post("/{user_id}/fetch-credit-score")
-def fetch_credit(user_id: str):
-    return get_credit(user_id)
+    return {
+        "saved": True,
+        "session_id": str(session.id),
+        "profile": profile,
+    }
 
-@router.post("/{user_id}/fetch-offers")
-def fetch_offers(user_id: str):
-    return mock_offer(user_id)
 
-@router.post("/{user_id}/save-profile")
-def save_profile(user_id: str, payload: SaveProfileIn, db: Session = Depends(get_session)):
-    user = db.exec(select(User).where(User.id == user_id)).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+# -------------------------
+# Credit score
+# -------------------------
+@router.post("/fetch-credit-score")
+def fetch_credit_score(
+    current_user: User = Depends(get_current_user),
+):
+    customer = get_customer(current_user.customer_id)
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
 
-    # update basic profile fields on User (phone as example)
-    user.phone = payload.phone
-    db.add(user)
+    return {"credit_score": customer.get("credit_score", 600)}
+
+
+# -------------------------
+# Pre-approved offers
+# -------------------------
+@router.post("/fetch-offers")
+def fetch_offers(
+    current_user: User = Depends(get_current_user),
+):
+    customer = get_customer(current_user.customer_id)
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    return {"pre_approved_limit": customer.get("pre_approved_limit", 0)}
+
+
+# -------------------------
+# Save basic user profile
+# -------------------------
+@router.post("/save-profile")
+def save_profile(
+    payload: SaveProfileIn,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_session),
+):
+    current_user.phone = payload.phone
+    db.add(current_user)
     db.commit()
-    db.refresh(user)
+    db.refresh(current_user)
 
-    return {"saved": True, "user": user}
+    return {"saved": True, "user": current_user}
 
-@router.get("/{user_id}/loans")
-def get_loans(user_id: str, db: Session = Depends(get_session)):
-    loans = db.exec(select(Offer).where(Offer.user_id == user_id)).all()
+
+# -------------------------
+# Loans
+# -------------------------
+@router.get("/loans")
+def get_loans(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_session),
+):
+    loans = db.exec(
+        select(Offer)
+        .join(SimulationSession)
+        .where(SimulationSession.customer_id == current_user.customer_id)
+    ).all()
+
     return {"loans": loans}

@@ -20,3 +20,7 @@ class UserOut(BaseModel):
     name: str
     email: EmailStr
     phone: str
+    customer_id: str | None
+
+    class Config:
+        from_attributes = True
