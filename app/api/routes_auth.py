@@ -6,6 +6,7 @@ from app.schemas.auth_schemas import SignupIn, LoginIn, TokenOut, UserOut
 from app.models.domain_models import User
 from app.services.password_service import hash_password, verify_password
 from app.services.jwt_service import create_access_token, get_current_user
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(tags=["auth"])
 
@@ -29,14 +30,17 @@ def signup(payload: SignupIn, db: Session = Depends(get_session)):
     return TokenOut(access_token=token)
 
 @router.post("/auth/login", response_model=TokenOut)
-def login(payload: LoginIn, db: Session = Depends(get_session)):
-    user = db.exec(select(User).where(User.email == payload.email)).first()
-    if not user or not verify_password(payload.password, user.password_hash):
+def login(
+    form: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_session)
+):
+    user = db.exec(select(User).where(User.email == form.username)).first()
+    if not user or not verify_password(form.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token({"sub": str(user.id)})
     return TokenOut(access_token=token)
 
-@router.get("/auth/me", response_model=UserOut)
-def me(user: User = Depends(get_current_user)):
-    return user
+@router.get("/me", response_model=UserOut)
+def auth_me(current_user: User = Depends(get_current_user)):
+    return current_user
