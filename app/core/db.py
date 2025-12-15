@@ -1,9 +1,9 @@
 from sqlmodel import SQLModel, create_engine, Session
 from app.core.config import settings
 
-# ✅ FIX: snake_case attribute
+# ✅ FIX: use UPPERCASE to match config
 engine = create_engine(
-    settings.database_url,
+    settings.DATABASE_URL,
     echo=False
 )
 
@@ -13,3 +13,4 @@ def init_db():
 def get_session():
     with Session(engine) as session:
         yield session
+
