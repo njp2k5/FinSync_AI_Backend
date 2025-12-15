@@ -1,5 +1,6 @@
 # app/api/routes_admin.py
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
+from typing import List, Union
 from sqlmodel import Session, select
 from uuid import UUID
 import os
@@ -28,9 +29,18 @@ def last_prompt(session_id: UUID, db: Session = Depends(get_session)):
     return {"last_log": al.log}
 
 @router.post("/sessions/{session_id}/rerun-agents")
-def rerun_agents(session_id: UUID, agents: list, db: Session = Depends(get_session)):
+def rerun_agents(session_id: UUID, agents: Union[List[str], dict] = Body(...), db: Session = Depends(get_session)):
+    # Accept either a raw list body ["sales", "verification"] or a dict {"agents": [...]}.
+    if isinstance(agents, dict):
+        agents_list = agents.get("agents") or agents.get("agents_list") or []
+    else:
+        agents_list = agents
+
+    if not isinstance(agents_list, list):
+        raise HTTPException(status_code=400, detail="agents must be a list of agent names")
+
     # rerun specific agents for debugging; uses helper from chat_service
-    return rerun_agents_for_session(db=db, session_id=session_id, agents=agents)
+    return rerun_agents_for_session(db=db, session_id=session_id, agents=agents_list)
 
 @router.post("/smtp/test")
 def smtp_test(to_email: str):

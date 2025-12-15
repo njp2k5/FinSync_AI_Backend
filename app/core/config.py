@@ -1,34 +1,50 @@
-# app/core/config.py
 from typing import Optional
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
+    # -------------------------
     # App core settings
-    APP_NAME: str = "FinSync AI Backend"
-    ENV: str = "dev"
+    # -------------------------
+    app_name: str = "FinSync AI Backend"
+    env: str = "dev"
 
+    # -------------------------
     # Database
-    DATABASE_URL: str = "sqlite:///./finsync.db"
+    # -------------------------
+    database_url: str = "sqlite:///./finsync.db"
 
-    # JWT / Auth settings  ✅ REQUIRED
-    SECRET_KEY: str = "CHANGE_ME_IN_PROD"
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    # -------------------------
+    # JWT / Auth settings
+    # -------------------------
+    secret_key: str = "CHANGE_ME_IN_PROD"
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60
 
+    # -------------------------
     # External integrations
-    GOOGLE_API_KEY: Optional[str] = None
-    GOOGLE_MODEL: Optional[str] = None
+    # -------------------------
+    openrouter_api_key: Optional[str] = None
+    google_model: Optional[str] = None
 
+    # -------------------------
     # Email / SMTP
-    SMTP_HOST: Optional[str] = None
-    SMTP_PORT: Optional[int] = 587
-    SMTP_USER: Optional[str] = None
-    SMTP_PASS: Optional[str] = None
-    SENDER_EMAIL: Optional[str] = None
+    # -------------------------
+    smtp_host: Optional[str] = None
+    smtp_port: int = 587
+    smtp_user: Optional[str] = None
+    smtp_pass: Optional[str] = None
+    sender_email: Optional[str] = None
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    # -------------------------
+    # Pydantic v2 config
+    # -------------------------
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="forbid"
+    )
 
-# singleton settings object
+
+# Singleton
 settings = Settings()

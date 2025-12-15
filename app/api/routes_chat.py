@@ -11,7 +11,7 @@ from app.services.chat_service import (
     resume_underwriting_after_salary,
     rerun_agents_for_session
 )
-from app.schemas.chat_schemas import ChatMessageIn
+from app.schemas.session_schemas import ChatMessageIn
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 

@@ -55,5 +55,16 @@
     "income_monthly": 50000,
     "existing_emi": 0,
     "city": "Bangalore"
+  },
+  {
+    "customer_id": "CUST_38BB58",
+    "name": "mike",
+    "email": "mikesmith@gmail.com",
+    "phone": "9999999999",
+    "credit_score": 750,
+    "pre_approved_limit": 500000,
+    "income_monthly": 50000,
+    "existing_emi": 0,
+    "city": "Bangalore"
   }
 ]

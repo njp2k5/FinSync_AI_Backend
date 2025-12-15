@@ -33,7 +33,7 @@ class OfferOut(BaseModel):
 class SessionStartResponse(BaseModel):
     session_id: UUID
     status: SessionStatus
-    user_profile: UserProfileCreate
+    customer_id: Optional[str] = None
 
 class ChatMessageIn(BaseModel):
     sender: str
