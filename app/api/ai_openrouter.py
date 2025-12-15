@@ -32,7 +32,7 @@ Your goals:
 @router.post("/chat", response_model=ChatResponse)
 async def chat_with_ai(req: ChatRequest):
 
-    if not settings.openrouter_api_key:
+    if not settings.OPENROUTER_API_KEY:
         raise HTTPException(
             status_code=500,
             detail="OPENROUTER_API_KEY not configured"
