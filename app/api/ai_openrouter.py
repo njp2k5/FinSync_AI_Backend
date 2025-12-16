@@ -26,6 +26,7 @@ SYSTEM_PROMPT = (
 
 # ✅ ONLY USE MODELS THAT ACTUALLY EXIST
 MODELS = [
+    "arcee-ai/trinity-mini:free",
     "mistralai/mistral-7b-instruct:free",
 ]
 
