@@ -16,6 +16,8 @@ from app.api import (
 )
 from app.core.db import init_db
 from app.api.ai_openrouter import router as openrouter_router
+from app.api.routes_email import router as email_router
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -41,6 +43,8 @@ def create_app():
     app.include_router(routes_mocks.router, prefix="/api")
     app.include_router(routes_admin.router, prefix="/api")
     app.include_router(openrouter_router)
+    app.include_router(email_router)
+
 
     @app.on_event("startup")
     def on_startup():
