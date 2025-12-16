@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     # -------------------------
     OPENROUTER_API_KEY: Optional[str] = None
     GOOGLE_MODEL: Optional[str] = None
+    RESEND_API_KEY: str | None = None  
 
     # -------------------------
     # Email / SMTP
