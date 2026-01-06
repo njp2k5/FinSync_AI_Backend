@@ -13,10 +13,10 @@ from dotenv import load_dotenv
 from app.models.domain_models import (
     SimulationSession, Message, Offer, AgentLog, SessionStatus, OfferStatus, UserProfile
 )
-from app.agents.emotion_agent import run_emotion_agent
-from app.agents.sales_agent import run_sales_agent
-from app.agents.verification_agent import run_verification_agent
-from app.agents.underwriting_agent import run_underwriting_agent
+from app.agents_core.emotion_agent import run_emotion_agent
+from app.agents_core.sales_agent import run_sales_agent
+from app.agents_core.verification_agent import run_verification_agent
+from app.agents_core.underwriting_agent import run_underwriting_agent
 from app.services.utils import save_message
 from app.services.pdf_service import generate_sanction_pdf
 from app.services.pdf_mailer import augment_pdf_with_pypdf, send_email_smtp

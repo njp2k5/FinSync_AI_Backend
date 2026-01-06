@@ -6,9 +6,10 @@ import logging
 
 from app.api import (
     routes_auth,
+    routes_chat_core,
+    routes_chatLangraph,
     routes_user,
     routes_dashboard,
-    routes_chat,
     routes_sessions,
     routes_mocks,
     routes_admin,
@@ -38,12 +39,13 @@ def create_app():
     app.include_router(routes_auth.router, prefix="/api")
     app.include_router(routes_user.router, prefix="/api")
     app.include_router(routes_dashboard.router, prefix="/api")
-    app.include_router(routes_chat.router, prefix="/api")
+    app.include_router(routes_chat_core.router, prefix="/api")
     app.include_router(routes_sessions.router, prefix="/api")
     app.include_router(routes_mocks.router, prefix="/api")
     app.include_router(routes_admin.router, prefix="/api")
     app.include_router(openrouter_router)
     app.include_router(email_router)
+    app.include_router(routes_chatLangraph.router, prefix="/api")
 
 
     @app.on_event("startup")
